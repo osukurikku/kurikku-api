@@ -151,6 +151,12 @@ func Start(conf common.Conf, dbO *sqlx.DB) *fhr.Router {
 	
 	// KR Api
 	{
+		r.Method("/api/v1/clans", v1.ClansGET)
+		r.Method("/api/v1/clans/members", v1.ClanMembersGET)
+		r.Method("/api/v1/clans/stats", v1.TotalClanStatsGET)
+		r.Method("/api/v1/clans/stats/all", v1.AllClanStatsGET)
+		r.Method("/api/v1/clans/getinvite", v1.ClanInviteGET)
+		r.Method("/api/v1/clans/isclan", v1.IsInClanGET)
 		r.Method("/api/v1/krapi/topdonors", krapi.TopDonorsGET)
 		r.Method("/api/v1/krapi/friends_sub", krapi.SubsGET, common.PrivilegeBlog)
 	}
