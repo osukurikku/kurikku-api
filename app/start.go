@@ -14,7 +14,7 @@ import (
 	"zxq.co/ripple/rippleapi/app/v1"
 	"zxq.co/ripple/rippleapi/app/websockets"
 	"zxq.co/ripple/rippleapi/common"
-	
+
 	"github.com/KotRikD/krapi"
 )
 
@@ -148,7 +148,7 @@ func Start(conf common.Conf, dbO *sqlx.DB) *fhr.Router {
 		r.POSTMethod("/api/v1/tokens/fix_privileges", v1.TokenFixPrivilegesPOST,
 			common.PrivilegeManageUser, common.PrivilegeAPIMeta)
 	}
-	
+
 	// KR Api
 	{
 		r.Method("/api/v1/clans", v1.ClansGET)
@@ -159,6 +159,7 @@ func Start(conf common.Conf, dbO *sqlx.DB) *fhr.Router {
 		r.Method("/api/v1/clans/isclan", v1.IsInClanGET)
 		r.Method("/api/v1/krapi/topdonors", krapi.TopDonorsGET)
 		r.Method("/api/v1/krapi/friends_sub", krapi.SubsGET, common.PrivilegeBlog)
+		r.Method("/api/v1/krapi/top_beatmaps", krapi.Beatmaps5GET)
 	}
 
 	// Websocket API
