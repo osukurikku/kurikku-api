@@ -164,6 +164,7 @@ func Start(conf common.Conf, dbO *sqlx.DB) *fhr.Router {
 		r.Method("/api/v1/krapi/sig_generate", krv1pr.GenerateNewPayment)
 		r.Method("/api/v1/payments/check_payment", krv1pr.CheckPayment)
 		r.Method("/api/v1/scores/ranksget", krv1pr.RanksStatsGET)
+		r.Method("/api/v1/users/subscount", krapi.SubsCountGetResponse)
 	}
 
 	// Websocket API

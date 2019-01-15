@@ -2,6 +2,7 @@ package krapi
 
 import (
 	"database/sql"
+	"strconv"
 	"zxq.co/ripple/rippleapi/common"
 )
 
@@ -22,8 +23,12 @@ type friendData struct {
 
 type friendsGETResponse struct {
 	common.ResponseBase
-	Friends   []friendData `json:"subs"`
-	SubsCount int          `json:"subscount"`
+	Friends []friendData `json:"subs"`
+}
+
+type subsCountGetResponse struct {
+	common.ResponseBase
+	SubsCount int `json:"subscount"`
 }
 
 func SubsGET(md common.MethodData) common.CodeMessager {
@@ -34,7 +39,7 @@ func SubsGET(md common.MethodData) common.CodeMessager {
 	}
 
 	var myFrienders []int
-	myFriendersRaw, err := md.DB.Query("SELECT user1 FROM users_relationships WHERE user2 = ?", md.ID())
+	myFriendersRaw, err := md.DB.Query("SELECT user1 FROM users_relationships WHERE user2 = ?")
 	if err != nil {
 		md.Err(err)
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kotorikku instance admin and tell them to fix the API.")
@@ -94,7 +99,6 @@ WHERE users_relationships.user2=? AND NOT EXISTS (SELECT * FROM users_relationsh
 			break
 		}
 		myFriends = append(myFriends, newFriend)
-		r.SubsCount += 1
 	}
 	if err := results.Err(); err != nil {
 		md.Err(err)
@@ -102,6 +106,43 @@ WHERE users_relationships.user2=? AND NOT EXISTS (SELECT * FROM users_relationsh
 
 	r.Code = 200
 	r.Friends = myFriends
+	return r
+}
+
+func SubsCountGetResponse(md common.MethodData) common.CodeMessager {
+	userid, err := strconv.Atoi(md.Query("userid"))
+	if err != nil {
+		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Katori instance admin and tell them to fix the API.")
+	}
+
+	myFriendsQuery := `
+SELECT             
+	users.id, users.username, users.register_datetime, users.privileges, users.latest_activity,
+
+	users_stats.username_aka,
+	users_stats.country
+FROM users_relationships
+LEFT JOIN users
+ON users_relationships.user1 = users.id
+LEFT JOIN users_stats
+ON users_relationships.user1=users_stats.id
+WHERE users_relationships.user2=? AND NOT EXISTS (SELECT * FROM users_relationships WHERE users_relationships.user1=? AND users_relationships.user2=users.id)`
+
+	r := subsCountGetResponse{}
+	results, err := md.DB.Query(myFriendsQuery, userid, userid)
+	if err != nil {
+		md.Err(err)
+		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kotorikku instance admin and tell them to fix the API.")
+	}
+
+	defer results.Close()
+	for results.Next() {
+		r.SubsCount += 1
+	}
+	if err := results.Err(); err != nil {
+		md.Err(err)
+	}
+	r.Code = 200
 	return r
 }
 
