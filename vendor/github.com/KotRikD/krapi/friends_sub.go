@@ -39,7 +39,7 @@ func SubsGET(md common.MethodData) common.CodeMessager {
 	}
 
 	var myFrienders []int
-	myFriendersRaw, err := md.DB.Query("SELECT user1 FROM users_relationships WHERE user2 = ?")
+	myFriendersRaw, err := md.DB.Query("SELECT user1 FROM users_relationships WHERE user2 = ?", md.ID())
 	if err != nil {
 		md.Err(err)
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kotorikku instance admin and tell them to fix the API.")
@@ -71,7 +71,6 @@ LEFT JOIN users_stats
 ON users_relationships.user1=users_stats.id
 WHERE users_relationships.user2=? AND NOT EXISTS (SELECT * FROM users_relationships WHERE users_relationships.user1=? AND users_relationships.user2=users.id)
 `
-	r := friendsGETResponse{}
 
 	myFriendsQuery += common.Sort(md, common.SortConfiguration{
 		Allowed: []string{
@@ -104,6 +103,7 @@ WHERE users_relationships.user2=? AND NOT EXISTS (SELECT * FROM users_relationsh
 		md.Err(err)
 	}
 
+	r := friendsGETResponse{}
 	r.Code = 200
 	r.Friends = myFriends
 	return r
