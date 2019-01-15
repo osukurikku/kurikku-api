@@ -22,7 +22,8 @@ type friendData struct {
 
 type friendsGETResponse struct {
 	common.ResponseBase
-	Friends []friendData `json:"subs"`
+	Friends   []friendData `json:"subs"`
+	SubsCount int          `json:"subscount"`
 }
 
 func SubsGET(md common.MethodData) common.CodeMessager {
@@ -65,6 +66,7 @@ LEFT JOIN users_stats
 ON users_relationships.user1=users_stats.id
 WHERE users_relationships.user2=? AND NOT EXISTS (SELECT * FROM users_relationships WHERE users_relationships.user1=? AND users_relationships.user2=users.id)
 `
+	r := friendsGETResponse{}
 
 	myFriendsQuery += common.Sort(md, common.SortConfiguration{
 		Allowed: []string{
@@ -92,12 +94,12 @@ WHERE users_relationships.user2=? AND NOT EXISTS (SELECT * FROM users_relationsh
 			break
 		}
 		myFriends = append(myFriends, newFriend)
+		r.SubsCount += 1
 	}
 	if err := results.Err(); err != nil {
 		md.Err(err)
 	}
 
-	r := friendsGETResponse{}
 	r.Code = 200
 	r.Friends = myFriends
 	return r
