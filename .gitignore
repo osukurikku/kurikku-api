@@ -6,3 +6,5 @@ api.conf
 debug
 launch.json
 api-master
+app/krv1pr/*
+app/krv1pr/

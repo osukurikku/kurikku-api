@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"time"
+	"zxq.co/ripple/rippleapi/app/krv1pr"
 
 	"github.com/DataDog/datadog-go/statsd"
 	fhr "github.com/buaazp/fasthttprouter"
@@ -160,6 +161,9 @@ func Start(conf common.Conf, dbO *sqlx.DB) *fhr.Router {
 		r.Method("/api/v1/krapi/topdonors", krapi.TopDonorsGET)
 		r.Method("/api/v1/krapi/friends_sub", krapi.SubsGET, common.PrivilegeBlog)
 		r.Method("/api/v1/krapi/top_beatmaps", krapi.Beatmaps5GET)
+		r.Method("/api/v1/krapi/sig_generate", krv1pr.GenerateNewPayment)
+		r.Method("/api/v1/payments/check_payment", krv1pr.CheckPayment)
+		r.Method("/api/v1/scores/ranksget", krv1pr.RanksStatsGET)
 	}
 
 	// Websocket API
