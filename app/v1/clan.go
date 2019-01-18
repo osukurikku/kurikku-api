@@ -2,18 +2,18 @@ package v1
 
 import (
 	"database/sql"
-	"zxq.co/ripple/rippleapi/common"
-	"sort"
 	"fmt"
+	"sort"
 	"strconv"
+	"zxq.co/ripple/rippleapi/common"
 )
 
 type singleClan struct {
-	ID            int    `json:"id,omitempty"`
-	Name          string `json:"name"`
-	Description   string `json:"description"`
-	Tag          string `json:"tag"`
-	Icon          string `json:"icon"`
+	ID          int    `json:"id,omitempty"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Tag         string `json:"tag"`
+	Icon        string `json:"icon"`
 }
 
 type multiClanData struct {
@@ -53,26 +53,26 @@ func ClansGET(md common.MethodData) common.CodeMessager {
 	return r
 }
 
-
 type clanMembersData struct {
 	common.ResponseBase
 	Members []userNotFullResponseLmao `json:"members"`
 }
+
 // get total stats of clan. later.
 type totalStats struct {
 	common.ResponseBase
-	ClanID         int     `json:"id"`
-	ChosenMode    modeData `json:"chosen_mode"`
-	Rank			int		`json:"rank"`
+	ClanID     int      `json:"id"`
+	ChosenMode modeData `json:"chosen_mode"`
+	Rank       int      `json:"rank"`
 }
 type clanLbSingle struct {
-	ID            int    `json:"id,omitempty"`
-	Name          string `json:"name"`
-	Description   string `json:"description"`
-	Tag           string `json:"tag"`
-	Icon          string `json:"icon"`
-	ChosenMode    modeData `json:"chosen_mode"`
-	Rank          int     `json:"rank"`
+	ID          int      `json:"id,omitempty"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Tag         string   `json:"tag"`
+	Icon        string   `json:"icon"`
+	ChosenMode  modeData `json:"chosen_mode"`
+	Rank        int      `json:"rank"`
 }
 
 type megaStats struct {
@@ -126,7 +126,6 @@ func AllClanStatsGET(md common.MethodData) common.CodeMessager {
 		n = "std"
 	}
 	fmt.Println(n)
-
 
 	for i := 0; i < len(r.Clans); i++ {
 		var members clanMembersData
@@ -192,13 +191,11 @@ func AllClanStatsGET(md common.MethodData) common.CodeMessager {
 	})
 
 	for i := 0; i < len(r.Clans); i++ {
-		r.Clans[i].Rank = i+1
+		r.Clans[i].Rank = i + 1
 	}
 
 	return r
 }
-
-
 
 func TotalClanStatsGET(md common.MethodData) common.CodeMessager {
 	var (
@@ -248,7 +245,6 @@ func TotalClanStatsGET(md common.MethodData) common.CodeMessager {
 		n = "std"
 	}
 	fmt.Println(n)
-
 
 	for i := 0; i < len(r.Clans); i++ {
 		var members clanMembersData
@@ -322,7 +318,7 @@ func TotalClanStatsGET(md common.MethodData) common.CodeMessager {
 	})
 
 	for i := 0; i < len(r.Clans); i++ {
-		r.Clans[i].Rank = i+1
+		r.Clans[i].Rank = i + 1
 	}
 	b := totalStats{}
 	for i := 0; i < len(r.Clans); i++ {
@@ -343,9 +339,9 @@ func TotalClanStatsGET(md common.MethodData) common.CodeMessager {
 }
 
 type isClanData struct {
-	Clan	int `json:"clan"`
-	User	int `json:"user"`
-	Perms	int	`json:"perms"`
+	Clan  int `json:"clan"`
+	User  int `json:"user"`
+	Perms int `json:"perms"`
 }
 
 type isClan struct {
@@ -386,17 +382,26 @@ func IsInClanGET(md common.MethodData) common.CodeMessager {
 
 type imRetarded struct {
 	common.ResponseBase
-	Invite	string	`json:"invite"`
+	Invite string `json:"invite"`
+}
+type adminClan struct {
+	Idowner int `json:"user"`
+	Perms   int `json:"perms"`
 }
 
 func ClanInviteGET(md common.MethodData) common.CodeMessager {
 	// big perms check lol ok
 	n := common.Int(md.Query("id"))
+	adminRetard := adminClan{}
 
 	var r imRetarded
 	var clan int
 	// get user clan, then get invite
-	md.DB.QueryRow("SELECT clan FROM user_clans WHERE user = ? LIMIT 1", n).Scan(&clan)
+	md.DB.QueryRow("SELECT clan, perms FROM user_clans WHERE user = ? LIMIT 1", n).Scan(&clan, &adminRetard.Perms)
+	fmt.Println(adminRetard.Idowner)
+	if adminRetard.Perms < 8 {
+		return common.SimpleResponse(500, "You are not admin of there clan")
+	}
 	row := md.DB.QueryRow("SELECT invite FROM clans_invites WHERE clan = ? LIMIT 1", clan).Scan(&r.Invite)
 	if row != nil {
 		fmt.Println(row)
