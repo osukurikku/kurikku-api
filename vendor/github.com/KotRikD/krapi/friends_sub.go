@@ -28,7 +28,7 @@ type friendsGETResponse struct {
 
 type subsCountGetResponse struct {
 	common.ResponseBase
-	SubsCount int `json:"subscount"`
+	SubsCount string `json:"subscount"`
 }
 
 func SubsGET(md common.MethodData) common.CodeMessager {
@@ -135,13 +135,16 @@ WHERE users_relationships.user2=? AND NOT EXISTS (SELECT * FROM users_relationsh
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kotorikku instance admin and tell them to fix the API.")
 	}
 
+	var count int = 0
 	defer results.Close()
 	for results.Next() {
-		r.SubsCount += 1
+		count+=1
 	}
+
 	if err := results.Err(); err != nil {
 		md.Err(err)
 	}
+	r.SubsCount = strconv.Itoa(count)
 	r.Code = 200
 	return r
 }
