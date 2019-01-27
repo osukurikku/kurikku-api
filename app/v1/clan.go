@@ -385,7 +385,7 @@ type imRetarded struct {
 	Invite string `json:"invite"`
 }
 type adminClan struct {
-	Idowner int `json:"user"`
+	Id int `json:"user"`
 	Perms   int `json:"perms"`
 }
 
@@ -397,9 +397,8 @@ func ClanInviteGET(md common.MethodData) common.CodeMessager {
 	var r imRetarded
 	var clan int
 	// get user clan, then get invite
-	md.DB.QueryRow("SELECT clan, perms FROM user_clans WHERE user = ? LIMIT 1", n).Scan(&clan, &adminRetard.Perms)
-	fmt.Println(adminRetard.Idowner)
-	if adminRetard.Perms < 8 {
+	md.DB.QueryRow("SELECT user, clan, perms FROM user_clans WHERE user = ? LIMIT 1", n).Scan(&adminRetard.Id, &clan, &adminRetard.Perms)
+	if adminRetard.Perms < 8 || adminRetard.Id != md.ID() {
 		return common.SimpleResponse(500, "You are not admin of there clan")
 	}
 	row := md.DB.QueryRow("SELECT invite FROM clans_invites WHERE clan = ? LIMIT 1", clan).Scan(&r.Invite)
