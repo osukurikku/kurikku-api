@@ -112,7 +112,7 @@ WHERE users_relationships.user2=? AND NOT EXISTS (SELECT * FROM users_relationsh
 func SubsCountGetResponse(md common.MethodData) common.CodeMessager {
 	userid, err := strconv.Atoi(md.Query("userid"))
 	if err != nil {
-		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Katori instance admin and tell them to fix the API.")
+		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")
 	}
 
 	myFriendsQuery := `

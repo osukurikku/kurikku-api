@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"time"
+
 	"zxq.co/ripple/rippleapi/app/krv1pr"
 
 	"github.com/DataDog/datadog-go/statsd"
@@ -12,7 +13,7 @@ import (
 	"gopkg.in/redis.v5"
 	"zxq.co/ripple/rippleapi/app/internals"
 	"zxq.co/ripple/rippleapi/app/peppy"
-	"zxq.co/ripple/rippleapi/app/v1"
+	v1 "zxq.co/ripple/rippleapi/app/v1"
 	"zxq.co/ripple/rippleapi/app/websockets"
 	"zxq.co/ripple/rippleapi/common"
 
@@ -167,6 +168,7 @@ func Start(conf common.Conf, dbO *sqlx.DB) *fhr.Router {
 		r.Method("/api/v1/users/subscount", krapi.SubsCountGetResponse)
 		r.Method("/api/v1/users/first_scores", krv1pr.FirstScoresBestGET)
 		r.Method("/api/v1/users/get_activity", krapi.LogsGET)
+		r.Method("/api/v1/krapi/top_plays", krapi.TopPlaysGET)
 	}
 
 	// Websocket API

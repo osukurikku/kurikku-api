@@ -58,7 +58,7 @@ DESC LIMIT 5
 `, id, mode, strconv.Itoa(int(time.Now().Unix())-2592000)))
 	if err != nil {
 		md.Err(err)
-		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Katori instance admin and tell them to fix the API.")
+		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")
 	}
 
 	var response Massive
