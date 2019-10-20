@@ -4,6 +4,24 @@ import (
 	"zxq.co/ripple/rippleapi/common"
 )
 
+type beatmap struct {
+	BeatmapID          int                  `json:"beatmap_id"`
+	BeatmapsetID       int                  `json:"beatmapset_id"`
+	BeatmapMD5         string               `json:"beatmap_md5"`
+	SongName           string               `json:"song_name"`
+	AR                 float32              `json:"ar"`
+	OD                 float32              `json:"od"`
+	Difficulty         float64              `json:"difficulty"`
+	Diff2              difficulty           `json:"difficulty2"` // fuck nyo
+	MaxCombo           int                  `json:"max_combo"`
+	HitLength          int                  `json:"hit_length"`
+	Ranked             int                  `json:"ranked"`
+	RankedStatusFrozen int                  `json:"ranked_status_frozen"`
+	LatestUpdate       common.UnixTimestamp `json:"latest_update"`
+	PlayCount          int                  `json:"playcount"`
+	BPM                int                  `json:"bpm"`
+}
+
 type difficulty struct {
 	STD   float64 `json:"std"`
 	Taiko float64 `json:"taiko"`
