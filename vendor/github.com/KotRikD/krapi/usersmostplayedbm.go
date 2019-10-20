@@ -5,30 +5,7 @@ import (
 	"fmt"
 )
 
-type difficulty struct {
-	STD   float64 `json:"std"`
-	Taiko float64 `json:"taiko"`
-	CTB   float64 `json:"ctb"`
-	Mania float64 `json:"mania"`
-}
-
-type MostPlayedItem struct {
-	BeatmapID          int                  `json:"beatmap_id"`
-	SongName           string               `json:"song_name"`
-	AR                 float32              `json:"ar"`
-	OD                 float32              `json:"od"`
-	Diff2              difficulty           `json:"difficulty2"` // fuck nyo
-	BPM                int                  `json:"bpm"`
-	PlayMode		   int					`json:"play_mode"`
-	Count			   int					`json:"count"`
-}
-
-type beatmapsResponse struct {
-	common.ResponseBase
-	MostPlayed []MostPlayedItem `json:"beatmaps"`
-}
-
-const baseBeatmapSelect = `
+const baseBeatmapSelect2 = `
 SELECT 
 	beatmaps.beatmap_id, beatmaps.song_name, beatmaps.ar, beatmaps.od, beatmaps.difficulty_std, 
 	beatmaps.difficulty_taiko, beatmaps.difficulty_ctb, beatmaps.difficulty_mania, beatmaps.bpm, 
@@ -46,12 +23,8 @@ func UsersMostPlayedBM(md common.MethodData) common.CodeMessager {
 
 	mode := md.Query("mode")
 	uid := md.Query("uid")
-	
-	if mode == nil || uid == nil {
-		return common.SimpleResponse(500, "argument is empty")
-	}
 
-	rows, err := md.DB.Query(fmt.Sprintf(baseBeatmapSelect, uid, mode))
+	rows, err := md.DB.Query(fmt.Sprintf(baseBeatmapSelect2, uid, mode))
 	if err != nil {
 		md.Err(err)
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kotorikku instance admin and tell them to fix the API.")
