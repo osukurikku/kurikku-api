@@ -7,6 +7,7 @@ import (
 
 const baseBeatmapSelect2 = `
 SELECT 
+	beatmaps.beatmapset_id,
 	beatmaps.beatmap_id, beatmaps.song_name, beatmaps.ar, beatmaps.od, beatmaps.difficulty_std, 
 	beatmaps.difficulty_taiko, beatmaps.difficulty_ctb, beatmaps.difficulty_mania, beatmaps.bpm, 
 	scores.play_mode, COUNT(scores.beatmap_md5) AS cbm5 FROM scores 
@@ -32,7 +33,7 @@ func UsersMostPlayedBM(md common.MethodData) common.CodeMessager {
 	for rows.Next() {
 		var b MostPlayedItem
 		err := rows.Scan(
-			&b.BeatmapID,
+			&b.BeatmapsetID, &b.BeatmapID,
 			&b.SongName, &b.AR, &b.OD, &b.Diff2.STD, &b.Diff2.Taiko,
 			&b.Diff2.CTB, &b.Diff2.Mania, &b.BPM,
 			&b.PlayMode, &b.Count,
@@ -41,7 +42,7 @@ func UsersMostPlayedBM(md common.MethodData) common.CodeMessager {
 			md.Err(err)
 			continue
 		}
-		resp.Beatmaps = append(resp.MostPlayed, b)
+		resp.MostPlayed = append(resp.MostPlayed, b)
 	}
 
 	return resp

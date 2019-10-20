@@ -30,6 +30,7 @@ type difficulty struct {
 }
 
 type MostPlayedItem struct {
+	BeatmapsetID	   int			`json:"beatmapset_id"`
 	BeatmapID          int                  `json:"beatmap_id"`
 	SongName           string               `json:"song_name"`
 	AR                 float32              `json:"ar"`
@@ -47,11 +48,13 @@ type beatmapsResponse struct {
 
 const baseBeatmapSelect1 = `
 SELECT 
+	beatmaps.beatmapset_id,
 	beatmaps.beatmap_id, beatmaps.song_name, beatmaps.ar, beatmaps.od, beatmaps.difficulty_std, 
 	beatmaps.difficulty_taiko, beatmaps.difficulty_ctb, beatmaps.difficulty_mania, beatmaps.bpm, 
 	scores.play_mode, COUNT(scores.beatmap_md5) AS cbm5 FROM scores 
 RIGHT JOIN beatmaps
 ON beatmaps.beatmap_md5 = scores.beatmap_md5
+WHERE scores.play_mode = 0
 GROUP BY scores.beatmap_md5
 ORDER BY cbm5 DESC
 LIMIT 5;
@@ -61,9 +64,6 @@ func Beatmaps5GET(md common.MethodData) common.CodeMessager {
 	var resp beatmapsResponse
 	resp.Code = 200
 
-	mode := md.Query("mode")
-	uid := md.Query("uid")
-
 	rows, err := md.DB.Query(baseBeatmapSelect1)
 	if err != nil {
 		md.Err(err)
@@ -72,7 +72,7 @@ func Beatmaps5GET(md common.MethodData) common.CodeMessager {
 	for rows.Next() {
 		var b MostPlayedItem
 		err := rows.Scan(
-			&b.BeatmapID,
+			&b.BeatmapsetID, &b.BeatmapID,
 			&b.SongName, &b.AR, &b.OD, &b.Diff2.STD, &b.Diff2.Taiko,
 			&b.Diff2.CTB, &b.Diff2.Mania, &b.BPM,
 			&b.PlayMode, &b.Count,
@@ -81,7 +81,7 @@ func Beatmaps5GET(md common.MethodData) common.CodeMessager {
 			md.Err(err)
 			continue
 		}
-		resp.Beatmaps = append(resp.MostPlayed, b)
+		resp.MostPlayed = append(resp.MostPlayed, b)
 	}
 
 	return resp
