@@ -14,6 +14,7 @@ import (
 	"zxq.co/ripple/rippleapi/app/internals"
 	"zxq.co/ripple/rippleapi/app/peppy"
 	v1 "zxq.co/ripple/rippleapi/app/v1"
+	v2 "zxq.co/ripple/rippleapi/app/v2"
 	"zxq.co/ripple/rippleapi/app/websockets"
 	"zxq.co/ripple/rippleapi/common"
 
@@ -164,17 +165,18 @@ func Start(conf common.Conf, dbO *sqlx.DB) *fhr.Router {
 		r.Method("/api/v1/krapi/friends_sub", krapi.SubsGET)
 		r.Method("/api/v1/krapi/top_beatmaps", krapi.Beatmaps5GET)
 		r.Method("/api/v1/krapi/top_plays", krapi.TopPlaysGET)
-		
+
 		r.Method("/api/v1/shop/get_items", krv1pr.GetShopItems, common.PrivilegeReadConfidential)
 		r.Method("/api/v1/shop/buy_item", krv1pr.BuyShopItem, common.PrivilegeReadConfidential)
 
 		r.Method("/api/v1/scores/ranksget", krv1pr.RanksGET)
-		
+
 		r.Method("/api/v1/users/subscount", krapi.SubsCountGetResponse)
 		r.Method("/api/v1/users/first_scores", krv1pr.FirstScoresBestGET)
 		r.Method("/api/v1/users/get_activity", krapi.LogsGET)
 		r.Method("/api/v1/users/mostplayedbm", krapi.UsersMostPlayedBM)
-		
+
+		r.Method("/api/v2/leaderboardCountries", v2.GetLeaderBoardCountries)
 	}
 
 	// Websocket API

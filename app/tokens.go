@@ -94,6 +94,7 @@ func BearerToken(token string, db *sqlx.DB) (common.Token, bool) {
 		Extra int
 	}
 	db.Get(&x, "SELECT scope, extra FROM osin_access WHERE access_token = ? LIMIT 1", fmt.Sprintf("%x", sha256.Sum256([]byte(token))))
+	fmt.Println(fmt.Sprintf("%x", sha256.Sum256([]byte(token))))
 	if x.Extra == 0 {
 		return common.Token{}, false
 	}

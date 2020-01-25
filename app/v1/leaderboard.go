@@ -9,6 +9,8 @@ import (
 
 	redis "gopkg.in/redis.v5"
 
+	"math"
+
 	"zxq.co/ripple/ocl"
 	"zxq.co/ripple/rippleapi/common"
 )
@@ -22,7 +24,8 @@ type leaderboardUser struct {
 
 type leaderboardResponse struct {
 	common.ResponseBase
-	Users []leaderboardUser `json:"users"`
+	Users   []leaderboardUser `json:"users"`
+	MaxPage int               `json:"max_page"`
 }
 
 const lbUserQuery = `
@@ -64,6 +67,22 @@ func LeaderboardGET(md common.MethodData) common.CodeMessager {
 
 	var resp leaderboardResponse
 	resp.Code = 200
+
+	var (
+		maxCount int64
+		maxPage  int
+	)
+	maxCount, _ = md.R.ZCount(key, "-inf", "+inf").Result()
+	if maxCount <= 0 {
+		maxPage = 1
+	}
+	if math.Mod(float64(maxCount)/float64(l), 1) == 0 {
+		maxPage = int(int(maxCount) / l)
+	} else {
+		maxPage = int(int(maxCount)/l) + 1
+	}
+
+	resp.MaxPage = maxPage
 
 	if len(results) == 0 {
 		return resp

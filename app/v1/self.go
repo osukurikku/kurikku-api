@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"zxq.co/ripple/rippleapi/common"
-	"zxq.co/ripple/semantic-icons-ugc"
+	semanticiconsugc "zxq.co/ripple/semantic-icons-ugc"
 )
 
 type donorInfoResponse struct {
@@ -56,7 +56,8 @@ type userSettingsData struct {
 		singleBadge
 		Show *bool `json:"show"`
 	} `json:"custom_badge"`
-	PlayStyle *int `json:"play_style"`
+	PlayStyle   *int `json:"play_style"`
+	PpOverScore *int `json:"pp_over_score"`
 }
 
 // UsersSelfSettingsPOST allows to modify information about the current user.
@@ -74,6 +75,7 @@ func UsersSelfSettingsPOST(md common.MethodData) common.CodeMessager {
 		d.CustomBadge.Show = nil
 	}
 	d.FavouriteMode = intPtrIn(0, d.FavouriteMode, 3)
+	d.PpOverScore = intPtrIn(0, d.PpOverScore, 2)
 
 	q := new(common.UpdateQuery).
 		Add("s.username_aka", d.UsernameAKA).
@@ -81,7 +83,8 @@ func UsersSelfSettingsPOST(md common.MethodData) common.CodeMessager {
 		Add("s.custom_badge_name", d.CustomBadge.Name).
 		Add("s.custom_badge_icon", d.CustomBadge.Icon).
 		Add("s.show_custom_badge", d.CustomBadge.Show).
-		Add("s.play_style", d.PlayStyle)
+		Add("s.play_style", d.PlayStyle).
+		Add("s.pp_over_score", d.PpOverScore)
 	if md.User.UserPrivileges&common.UserPrivilegeDonor > 0 {
 		q.Add("s.can_custom_badge", 1)
 	} else {
