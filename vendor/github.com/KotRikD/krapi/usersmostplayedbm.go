@@ -1,8 +1,6 @@
 package krapi
 
 import (
-	"fmt"
-
 	"zxq.co/ripple/rippleapi/common"
 )
 
@@ -14,10 +12,10 @@ SELECT
 	scores.play_mode, COUNT(scores.beatmap_md5) AS cbm5 FROM scores 
 RIGHT JOIN beatmaps
 ON beatmaps.beatmap_md5 = scores.beatmap_md5
-WHERE scores.userid = %s AND scores.play_mode = %s
+WHERE scores.userid = ? AND scores.play_mode = ?
 GROUP BY scores.beatmap_md5
 ORDER BY cbm5 DESC
-LIMIT %s OFFSET %s;
+LIMIT ? OFFSET ?;
 `
 
 func UsersMostPlayedBM(md common.MethodData) common.CodeMessager {
@@ -29,7 +27,7 @@ func UsersMostPlayedBM(md common.MethodData) common.CodeMessager {
 	offset := md.Query("offset")
 	limit := md.Query("limit")
 
-	rows, err := md.DB.Query(fmt.Sprintf(baseBeatmapSelect2, uid, mode, limit, offset))
+	rows, err := md.DB.Query(baseBeatmapSelect2, uid, mode, limit, offset)
 	if err != nil {
 		md.Err(err)
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kotorikku instance admin and tell them to fix the API.")

@@ -1,6 +1,7 @@
 package krapi
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -65,9 +66,9 @@ SELECT
 FROM scores
 INNER JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
 INNER JOIN users ON users.id = scores.userid
-WHERE scores.pp > 0 AND scores.completed = '3' AND users.privileges & 1 > 0 AND scores.play_mode = %s
-ORDER BY scores.pp DESC
-`
+WHERE scores.pp > 0 AND scores.completed = '3' AND users.privileges & 1 > 0 AND scores.play_mode = %s`
+
+const topPlaysQueryAfter = ` ORDER BY scores.pp DESC`
 
 func TopPlaysGET(md common.MethodData) common.CodeMessager {
 	limit := md.HasQuery("l")
@@ -77,7 +78,18 @@ func TopPlaysGET(md common.MethodData) common.CodeMessager {
 	}
 	mode := md.Query("mode")
 
-	rows, err := md.DB.Query(fmt.Sprintf(topPlaysQuery, mode) + limitQuery)
+	isRelax := md.HasQuery("rx")
+	rxQuery := " AND scores.mods & 128 > 0"
+	if !isRelax {
+		rxQuery = " AND (scores.mods & 128 = 0 AND scores.mods & 8192 = 0)"
+	}
+
+	var (
+		rows *sql.Rows
+		err  error
+	)
+	rows, err = md.DB.Query(fmt.Sprintf(topPlaysQuery, mode) + rxQuery + topPlaysQueryAfter + limitQuery)
+
 	if err != nil {
 		md.Err(err)
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")

@@ -1,8 +1,6 @@
 package krapi
 
 import (
-	"fmt"
-	"strconv"
 	"time"
 
 	"zxq.co/ripple/rippleapi/common"
@@ -29,7 +27,7 @@ SELECT
 	users_stats.country, users.donor_expire
 FROM users
 INNER JOIN users_stats ON users_stats.id = users.id
-WHERE users.privileges >= 4 AND users.privileges != 1048576 AND users.donor_expire > %s
+WHERE users.privileges >= 4 AND users.privileges != 1048576 AND users.donor_expire > ?
 ORDER BY users.donor_expire DESC
 `
 
@@ -40,9 +38,9 @@ func TopDonorsGET(md common.MethodData) common.CodeMessager {
 	var tempUsers []userData
 
 	t := time.Now().Unix()
-	tStr := strconv.Itoa(int(t))
+	//tStr := strconv.Itoa(int(t))
 
-	rows, err := md.DB.Query(fmt.Sprintf(lbUserQuery, tStr))
+	rows, err := md.DB.Query(lbUserQuery, int(t))
 	if err != nil {
 		md.Err(err)
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kotorikku instance admin and tell them to fix the API.")

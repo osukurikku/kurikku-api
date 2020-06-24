@@ -4,7 +4,6 @@ package krapi
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -72,7 +71,7 @@ func LogsGET(md common.MethodData) common.CodeMessager {
 	id := md.Query("userid")
 	mode := md.Query("mode")
 	//Getting Logs
-	results, err := md.DB.Query(fmt.Sprintf(`SELECT 
+	results, err := md.DB.Query(`SELECT 
 beatmaps.song_name, 
 users_logs.log, users_logs.time, users_logs.scoreid, 
 beatmaps.beatmap_id,
@@ -80,12 +79,12 @@ scores.play_mode, scores.mods, scores.accuracy, scores.300_count, scores.100_cou
 FROM users_logs 
 LEFT JOIN beatmaps ON (beatmaps.beatmap_md5 = users_logs.beatmap_md5)
 INNER JOIN scores ON scores.id = users_logs.scoreid
-WHERE user = %s 
-AND users_logs.game_mode = %s 
-AND users_logs.time > %s
+WHERE user = ? 
+AND users_logs.game_mode = ? 
+AND users_logs.time > ?
 ORDER BY users_logs.time  
 DESC LIMIT 5
-`, id, mode, strconv.Itoa(int(time.Now().Unix())-2592000)))
+`, id, mode, int(time.Now().Unix())-2592000)
 	if err != nil {
 		md.Err(err)
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")

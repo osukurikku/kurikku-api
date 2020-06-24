@@ -54,7 +54,7 @@ SELECT
 	scores.time, scores.play_mode, scores.accuracy, scores.pp,
 	scores.completed
 FROM scores
-WHERE scores.userid = '` + iduser + `' AND scores.completed = 3 AND scores.play_mode = ` + mode)
+WHERE scores.userid = ? AND scores.completed = 3 AND scores.play_mode = ?`, iduser, mode)
 	if err != nil {
 		md.Err(err)
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")

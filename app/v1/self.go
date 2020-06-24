@@ -3,6 +3,7 @@ package v1
 import (
 	"strings"
 
+	emoji "github.com/tmdvs/Go-Emoji-Utils"
 	"zxq.co/ripple/rippleapi/common"
 	semanticiconsugc "zxq.co/ripple/semantic-icons-ugc"
 )
@@ -69,7 +70,11 @@ func UsersSelfSettingsPOST(md common.MethodData) common.CodeMessager {
 	*d.UsernameAKA = common.SanitiseString(*d.UsernameAKA)
 	if md.User.UserPrivileges&common.UserPrivilegeDonor > 0 {
 		d.CustomBadge.Name = common.SanitiseString(d.CustomBadge.Name)
-		d.CustomBadge.Icon = sanitiseIconName(d.CustomBadge.Icon)
+		emoji, err := emoji.LookupEmoji(d.CustomBadge.Icon)
+		if err != nil {
+			return common.SimpleResponse(400, "Invalid emoji")
+		}
+		d.CustomBadge.Icon = emoji.Value
 	} else {
 		d.CustomBadge.singleBadge = singleBadge{}
 		d.CustomBadge.Show = nil
@@ -138,7 +143,7 @@ SELECT
 	u.email, s.username_aka, s.favourite_mode,
 	s.show_custom_badge, s.custom_badge_icon,
 	s.custom_badge_name, s.can_custom_badge,
-	s.play_style, u.flags
+	s.play_style, s.pp_over_score, u.flags
 FROM users u
 LEFT JOIN users_stats s ON u.id = s.id
 WHERE u.id = ?`, md.ID()).Scan(
@@ -146,7 +151,7 @@ WHERE u.id = ?`, md.ID()).Scan(
 		&r.Email, &r.UsernameAKA, &r.FavouriteMode,
 		&r.CustomBadge.Show, &r.CustomBadge.Icon,
 		&r.CustomBadge.Name, &ccb,
-		&r.PlayStyle, &r.Flags,
+		&r.PlayStyle, &r.PpOverScore, &r.Flags,
 	)
 	if err != nil {
 		md.Err(err)

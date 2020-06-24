@@ -184,6 +184,7 @@ type modeData struct {
 	PP                     int     `json:"pp"`
 	GlobalLeaderboardRank  *int    `json:"global_leaderboard_rank"`
 	CountryLeaderboardRank *int    `json:"country_leaderboard_rank"`
+	PlayTime               int     `json:"playtime"`
 }
 type userFullResponse struct {
 	common.ResponseBase
@@ -207,38 +208,38 @@ type silenceInfo struct {
 	End    common.UnixTimestamp `json:"end"`
 }
 type userNotFullResponseLmao struct {
-	Id             int                  `json:"id"`
-	Username       string               `json:"username"`
-	UsernameAKA    string               `json:"username_aka"`
-	RegisteredOn   common.UnixTimestamp `json:"registered_on"`
-	Privileges     uint64               `json:"privileges"`
-	LatestActivity common.UnixTimestamp `json:"latest_activity"`
-	Country        string               `json:"country"`
-	UserColor        string               `json:"user_color"`
-	RankedScoreStd            uint64  `json:"ranked_score_std"`
-	TotalScoreStd             uint64  `json:"total_score_std"`
-	PlaycountStd              int     `json:"playcount_std"`
-	ReplaysWatchedStd         int     `json:"replays_watched_std"`
-	TotalHitsStd              int     `json:"total_hits_std"`
-	PpStd                     int     `json:"pp_std"`
-	RankedScoreTaiko            uint64  `json:"ranked_score_taiko"`
-	TotalScoreTaiko             uint64  `json:"total_score_taiko"`
-	PlaycountTaiko              int     `json:"playcount_taiko"`
-	ReplaysWatchedTaiko         int     `json:"replays_watched_taiko"`
-	TotalHitsTaiko              int     `json:"total_hits_taiko"`
-	PpTaiko                     int     `json:"pp_taiko"`
-	RankedScoreCtb            uint64  `json:"ranked_score_ctb"`
-	TotalScoreCtb            uint64  `json:"total_score_ctb"`
-	PlaycountCtb              int     `json:"playcount_ctb"`
-	ReplaysWatchedCtb         int     `json:"replays_watched_ctb"`
-	TotalHitsCtb              int     `json:"total_hits_ctb"`
-	PpCtb                     int     `json:"pp_ctb"`
-	RankedScoreMania            uint64  `json:"ranked_score_mania"`
-	TotalScoreMania             uint64  `json:"total_score_mania"`
-	PlaycountMania              int     `json:"playcount_mania"`
-	ReplaysWatchedMania         int     `json:"replays_watched_mania"`
-	TotalHitsMania              int     `json:"total_hits_mania"`
-	PpMania                     int     `json:"pp_mania"`
+	Id                  int                  `json:"id"`
+	Username            string               `json:"username"`
+	UsernameAKA         string               `json:"username_aka"`
+	RegisteredOn        common.UnixTimestamp `json:"registered_on"`
+	Privileges          uint64               `json:"privileges"`
+	LatestActivity      common.UnixTimestamp `json:"latest_activity"`
+	Country             string               `json:"country"`
+	UserColor           string               `json:"user_color"`
+	RankedScoreStd      uint64               `json:"ranked_score_std"`
+	TotalScoreStd       uint64               `json:"total_score_std"`
+	PlaycountStd        int                  `json:"playcount_std"`
+	ReplaysWatchedStd   int                  `json:"replays_watched_std"`
+	TotalHitsStd        int                  `json:"total_hits_std"`
+	PpStd               int                  `json:"pp_std"`
+	RankedScoreTaiko    uint64               `json:"ranked_score_taiko"`
+	TotalScoreTaiko     uint64               `json:"total_score_taiko"`
+	PlaycountTaiko      int                  `json:"playcount_taiko"`
+	ReplaysWatchedTaiko int                  `json:"replays_watched_taiko"`
+	TotalHitsTaiko      int                  `json:"total_hits_taiko"`
+	PpTaiko             int                  `json:"pp_taiko"`
+	RankedScoreCtb      uint64               `json:"ranked_score_ctb"`
+	TotalScoreCtb       uint64               `json:"total_score_ctb"`
+	PlaycountCtb        int                  `json:"playcount_ctb"`
+	ReplaysWatchedCtb   int                  `json:"replays_watched_ctb"`
+	TotalHitsCtb        int                  `json:"total_hits_ctb"`
+	PpCtb               int                  `json:"pp_ctb"`
+	RankedScoreMania    uint64               `json:"ranked_score_mania"`
+	TotalScoreMania     uint64               `json:"total_score_mania"`
+	PlaycountMania      int                  `json:"playcount_mania"`
+	ReplaysWatchedMania int                  `json:"replays_watched_mania"`
+	TotalHitsMania      int                  `json:"total_hits_mania"`
+	PpMania             int                  `json:"pp_mania"`
 	// STD       clappedModeData  `json:"std"`
 	// Taiko     clappedModeData  `json:"taiko"`
 	// CTB       clappedModeData  `json:"ctb"`
@@ -264,19 +265,19 @@ SELECT
 
 	users_stats.ranked_score_std, users_stats.total_score_std, users_stats.playcount_std,
 	users_stats.replays_watched_std, users_stats.total_hits_std,
-	users_stats.avg_accuracy_std, users_stats.pp_std,
+	users_stats.avg_accuracy_std, users_stats.pp_std, users_stats.playtime_std,
 
 	users_stats.ranked_score_taiko, users_stats.total_score_taiko, users_stats.playcount_taiko,
 	users_stats.replays_watched_taiko, users_stats.total_hits_taiko,
-	users_stats.avg_accuracy_taiko, users_stats.pp_taiko,
+	users_stats.avg_accuracy_taiko, users_stats.pp_taiko, users_stats.playtime_taiko,
 
 	users_stats.ranked_score_ctb, users_stats.total_score_ctb, users_stats.playcount_ctb,
 	users_stats.replays_watched_ctb, users_stats.total_hits_ctb,
-	users_stats.avg_accuracy_ctb, users_stats.pp_ctb,
+	users_stats.avg_accuracy_ctb, users_stats.pp_ctb, users_stats.playtime_ctb,
 
 	users_stats.ranked_score_mania, users_stats.total_score_mania, users_stats.playcount_mania,
 	users_stats.replays_watched_mania, users_stats.total_hits_mania,
-	users_stats.avg_accuracy_mania, users_stats.pp_mania,
+	users_stats.avg_accuracy_mania, users_stats.pp_mania, users_stats.playtime_mania,
 
 	users.silence_reason, users.silence_end,
 	users.notes, users.ban_datetime, users.email
@@ -304,19 +305,19 @@ LIMIT 1
 
 		&r.STD.RankedScore, &r.STD.TotalScore, &r.STD.PlayCount,
 		&r.STD.ReplaysWatched, &r.STD.TotalHits,
-		&r.STD.Accuracy, &r.STD.PP,
+		&r.STD.Accuracy, &r.STD.PP, &r.STD.PlayTime,
 
 		&r.Taiko.RankedScore, &r.Taiko.TotalScore, &r.Taiko.PlayCount,
 		&r.Taiko.ReplaysWatched, &r.Taiko.TotalHits,
-		&r.Taiko.Accuracy, &r.Taiko.PP,
+		&r.Taiko.Accuracy, &r.Taiko.PP, &r.Taiko.PlayTime,
 
 		&r.CTB.RankedScore, &r.CTB.TotalScore, &r.CTB.PlayCount,
 		&r.CTB.ReplaysWatched, &r.CTB.TotalHits,
-		&r.CTB.Accuracy, &r.CTB.PP,
+		&r.CTB.Accuracy, &r.CTB.PP, &r.CTB.PlayTime,
 
 		&r.Mania.RankedScore, &r.Mania.TotalScore, &r.Mania.PlayCount,
 		&r.Mania.ReplaysWatched, &r.Mania.TotalHits,
-		&r.Mania.Accuracy, &r.Mania.PP,
+		&r.Mania.Accuracy, &r.Mania.PP, &r.Mania.PlayTime,
 
 		&r.SilenceInfo.Reason, &r.SilenceInfo.End,
 		&r.CMNotes, &r.BanDate, &r.Email,
