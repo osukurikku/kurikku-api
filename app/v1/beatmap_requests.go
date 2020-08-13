@@ -150,6 +150,16 @@ func BeatmapRankRequestsSubmitPOST(md common.MethodData) common.CodeMessager {
 	_, err = md.DB.Exec(
 		"INSERT INTO rank_requests (userid, bid, type, time, blacklisted) VALUES (?, ?, ?, ?, 0)",
 		md.ID(), v, t, time.Now().Unix())
+
+	redisData, _ := json.Marshal(struct {
+		Uid  int
+		Bid  int
+		Type string
+	}{
+		md.ID(), v, t,
+	})
+
+	md.R.Publish("maps:new_request", string(redisData))
 	if err != nil {
 		md.Err(err)
 		return Err500

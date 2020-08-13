@@ -186,6 +186,14 @@ type modeData struct {
 	CountryLeaderboardRank *int    `json:"country_leaderboard_rank"`
 	PlayTime               int     `json:"playtime"`
 }
+
+type userSkills struct {
+	Name       string  `json:"name"`
+	Color      string  `json:"color"`
+	Value      int     `json:"value"`
+	Percentage float64 `json:"perc"`
+}
+
 type userFullResponse struct {
 	common.ResponseBase
 	userData
@@ -202,6 +210,7 @@ type userFullResponse struct {
 	CMNotes       *string               `json:"cm_notes,omitempty"`
 	BanDate       *common.UnixTimestamp `json:"ban_date,omitempty"`
 	Email         string                `json:"email,omitempty"`
+	Skills        []userSkills          `json:"std_skills"`
 }
 type silenceInfo struct {
 	Reason string               `json:"reason"`
@@ -280,7 +289,10 @@ SELECT
 	users_stats.avg_accuracy_mania, users_stats.pp_mania, users_stats.playtime_mania,
 
 	users.silence_reason, users.silence_end,
-	users.notes, users.ban_datetime, users.email
+	users.notes, users.ban_datetime, users.email,
+
+	users_stats.skill_stamina, users_stats.skill_tenacity, users_stats.skill_agility, users_stats.skill_precision,
+	users_stats.skill_memory, users_stats.skill_accuracy , users_stats.skill_reaction
 
 FROM users
 LEFT JOIN users_stats
@@ -294,6 +306,17 @@ LIMIT 1
 		b    singleBadge
 		can  bool
 		show bool
+	)
+
+	// Skills
+	var (
+		stamina   int
+		tenacity  int
+		agility   int
+		precision int
+		memory    int
+		accuracy  int
+		reaction  int
 	)
 	err := md.DB.QueryRow(query, param).Scan(
 		&r.ID, &r.Username, &r.RegisteredOn, &r.Privileges, &r.LatestActivity,
@@ -321,6 +344,8 @@ LIMIT 1
 
 		&r.SilenceInfo.Reason, &r.SilenceInfo.End,
 		&r.CMNotes, &r.BanDate, &r.Email,
+
+		&stamina, &tenacity, &agility, &precision, &memory, &accuracy, &reaction,
 	)
 	switch {
 	case err == sql.ErrNoRows:
@@ -382,6 +407,51 @@ LIMIT 1
 			continue
 		}
 		r.Clan = clan
+	}
+
+	r.Skills = []userSkills{
+		{
+			Name:       "Stamina",
+			Color:      "",
+			Value:      stamina,
+			Percentage: float64((100 * stamina) / 1500),
+		},
+		{
+			Name:       "Tenacity",
+			Color:      "red",
+			Value:      tenacity,
+			Percentage: float64((100 * tenacity) / 1500),
+		},
+		{
+			Name:       "Agility",
+			Color:      "orange",
+			Value:      agility,
+			Percentage: float64((100 * agility) / 1500),
+		},
+		{
+			Name:       "Precision",
+			Color:      "olive",
+			Value:      precision,
+			Percentage: float64((100 * precision) / 1500),
+		},
+		{
+			Name:       "Memory",
+			Color:      "teal",
+			Value:      memory,
+			Percentage: float64((100 * memory) / 1500),
+		},
+		{
+			Name:       "Accuracy",
+			Color:      "orange",
+			Value:      accuracy,
+			Percentage: float64((100 * accuracy) / 1500),
+		},
+		{
+			Name:       "Reaction",
+			Color:      "black",
+			Value:      reaction,
+			Percentage: float64((100 * reaction) / 1500),
+		},
 	}
 
 	r.Code = 200
