@@ -81,25 +81,19 @@ func ScoresGET(md common.MethodData) common.CodeMessager {
 	}
 
 	gm := md.Query("gamemode")
-	fmt.Println(gm)
-	fmt.Println("prosto test")
 	var myclose string
 	switch gm {
 	//128 relax, 8192 - ap
 	case "nomod":
-		fmt.Println("nomod close")
 		myclose = `(scores.mods & 128 = 0 AND scores.mods & 8192 = 0)`
 		break
 	default:
-		fmt.Println("nomod close")
 		myclose = `(scores.mods & 128 = 0 AND scores.mods & 8192 = 0)`
 		break
 	case "rx":
-		fmt.Println("rx close")
 		myclose = `(scores.mods & 128 > 0 AND scores.mods & 8192 = 0)`
 		break
 	case "ap":
-		fmt.Println("ap close")
 		myclose = `(scores.mods & 128 = 0 AND scores.mods & 8192 > 0)`
 		break
 	}
@@ -107,22 +101,6 @@ func ScoresGET(md common.MethodData) common.CodeMessager {
 	where.Where(` scores.completed = '3' AND `+myclose+` AND `+md.User.OnlyUserPublic(false)+` `+
 		genModeClause(md)+` `+sort+common.Paginate(md.Query("p"), md.Query("l"), 100), "FIF")
 	where.Params = where.Params[:len(where.Params)-1]
-
-	fmt.Println(`
-	SELECT
-		scores.id, scores.beatmap_md5, scores.score,
-		scores.max_combo, scores.full_combo, scores.mods,
-		scores.300_count, scores.100_count, scores.50_count,
-		scores.gekis_count, scores.katus_count, scores.misses_count,
-		scores.time, scores.play_mode, scores.accuracy, scores.pp,
-		scores.completed,
-	
-		users.id, users.username, users.register_datetime, users.privileges,
-		users.latest_activity, users_stats.username_aka, users_stats.country
-	FROM scores
-	INNER JOIN users ON users.id = scores.userid
-	INNER JOIN users_stats ON users_stats.id = scores.userid
-	` + where.Clause)
 
 	rows, err := md.DB.Query(`
 SELECT

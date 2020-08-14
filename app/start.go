@@ -181,6 +181,7 @@ func Start(conf common.Conf, dbO *sqlx.DB) *fhr.Router {
 		r.POSTMethod("/api/v2/settings/update_bgs", krv1pr.UpdateBGs, common.PrivilegeReadConfidential)
 		r.Method("/api/v2/leaderboardCountries", v2.GetLeaderBoardCountries)
 		r.Method("/api/v2/streamers.get", krv1pr.AllStreamersGet)
+		r.Method("/api/v2/nickname.available", v2.GetAvailableUsername)
 	}
 
 	// Websocket API

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+
 	"zxq.co/ripple/rippleapi/common"
 )
 
@@ -96,8 +97,6 @@ func AllClanStatsGET(md common.MethodData) common.CodeMessager {
 	for rows.Next() {
 		nc := clanLbSingle{}
 		err = rows.Scan(&nc.ID, &nc.Name, &nc.Description, &nc.Tag, &nc.Icon)
-		fmt.Println(rows)
-		fmt.Println(&nc.Tag)
 		if err != nil {
 			md.Err(err)
 		}
@@ -125,7 +124,6 @@ func AllClanStatsGET(md common.MethodData) common.CodeMessager {
 	} else {
 		n = "std"
 	}
-	fmt.Println(n)
 
 	for i := 0; i < len(r.Clans); i++ {
 		var members clanMembersData
@@ -244,7 +242,6 @@ func TotalClanStatsGET(md common.MethodData) common.CodeMessager {
 	} else {
 		n = "std"
 	}
-	fmt.Println(n)
 
 	for i := 0; i < len(r.Clans); i++ {
 		var members clanMembersData
@@ -385,8 +382,8 @@ type imRetarded struct {
 	Invite string `json:"invite"`
 }
 type adminClan struct {
-	Id int `json:"user"`
-	Perms   int `json:"perms"`
+	Id    int `json:"user"`
+	Perms int `json:"perms"`
 }
 
 func ClanInviteGET(md common.MethodData) common.CodeMessager {
