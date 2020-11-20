@@ -182,6 +182,7 @@ func Start(conf common.Conf, dbO *sqlx.DB) *fhr.Router {
 		r.Method("/api/v2/leaderboardCountries", v2.GetLeaderBoardCountries)
 		r.Method("/api/v2/streamers.get", krv1pr.AllStreamersGet)
 		r.Method("/api/v2/nickname.available", v2.GetAvailableUsername)
+		r.Method("/api/v2/leaderboard.skills", v1.SkillsLeaderboardGET)
 	}
 
 	// Websocket API

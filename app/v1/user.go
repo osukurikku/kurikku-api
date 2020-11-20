@@ -448,7 +448,7 @@ LIMIT 1
 		},
 		{
 			Name:       "Reaction",
-			Color:      "black",
+			Color:      "purple",
 			Value:      reaction,
 			Percentage: float64((100 * reaction) / 1500),
 		},
