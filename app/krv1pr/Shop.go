@@ -23,12 +23,12 @@ type User struct {
 	Username    string
 	Privileges  int
 	DonorExpire int
-	Balance     int
+	Balance     float32
 }
 
 type ShopItemsResponse struct {
 	common.ResponseBase
-	Balance int    `json:"balance"`
+	Balance float32    `json:"balance"`
 	Items   []Item `json:"items"`
 }
 
@@ -96,7 +96,7 @@ func BuyShopItem(md common.MethodData) common.CodeMessager {
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")
 	}
 
-	if user.Balance < item.Cost {
+	if int(user.Balance) < item.Cost {
 		return common.SimpleResponse(400, "Balance is enough")
 	}
 

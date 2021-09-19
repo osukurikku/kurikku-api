@@ -3,71 +3,121 @@ package krv1pr
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"math/rand"
+	"fmt"
 	"strconv"
+
 	"zxq.co/ripple/rippleapi/common"
 )
 
+const (
+	PAYMENT_PRIVATEKEY            = "qHOX9T-yjgszcRtqa9f6JSourkltNT53"
+	PAYMENT_PRIVATEKEY_ADDITIONAL = "r4U7Q3XYEWc2fC7Qj-UhLvRPTp1TYQB-"
+	PAYMENT_SHOP_ID               = "15356"
+)
+
 var (
-	PAYMENT_PRIVATEKEY = "TGOyJlHviIyhnOXz43i"
-	PAYMENT_SHOP_ID = "4339"
+	AVAILABLE_CURRENCIES = []string{"USD", "RUB", "EUR", "UAH"}
 )
 
 type SignatureBaseResult struct {
 	common.ResponseBase
-	PayID string `json:"payid"`
-	Sign string `json:"signature"`
+	PayID int    `json:"payid"`
+	Sign  string `json:"signature"`
 }
 
-func GetMD5Hash(text string) string {
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+func getMD5Hash(text string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(text))
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
 func GenerateSignature(md common.MethodData) common.CodeMessager {
+	if md.User.ID == 0 {
+		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")
+	}
+
 	amount := md.Query("amount") // Сумма к оплате
-	_, err := strconv.Atoi(amount)
+	currency := md.Query("currency")
+	if !stringInSlice(currency, AVAILABLE_CURRENCIES) {
+		return common.SimpleResponse(500, "We're accepting only USD/RUB/EUR/UAH")
+	}
+
+	intForId, err := strconv.Atoi(md.Query("user_id"))
 	if err != nil {
 		md.Err(err)
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")
 	}
 
-	pay_id := strconv.Itoa(rand.Intn(99999999 - 1000) + 1000) // Номер счета
-	currency := "RUB" // Валюта платежа
+	floatAmount, err := strconv.ParseFloat(amount, 2)
+	if err != nil {
+		md.Err(err)
+		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")
+	}
 
-	sign := GetMD5Hash(currency+":"+amount+":"+PAYMENT_PRIVATEKEY+":"+PAYMENT_SHOP_ID+":"+pay_id)
+	lastPayID := 1
+	err = md.DB.QueryRow(`select id from users_payment order by id desc limit 1`).Scan(&lastPayID)
+	if err != nil {
+		md.Err(err)
+		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")
+	}
+
+	sign := getMD5Hash(fmt.Sprintf("%s:%.2f:%s:%d", PAYMENT_SHOP_ID, floatAmount, PAYMENT_PRIVATEKEY, lastPayID+1))
+	md.DB.Exec(
+		"insert into users_payment values (NULL, ?, ?, ?, 0)",
+		intForId, floatAmount, currency,
+	)
 
 	signResult := SignatureBaseResult{}
 	signResult.Code = 200
 	signResult.Sign = sign
-	signResult.PayID = pay_id
+	signResult.PayID = lastPayID + 1
 	return signResult
 }
 
 func CheckPayment(md common.MethodData) common.CodeMessager {
-	amount := md.Query("amount")
-	pay_id := md.Query("pay_id")
-	user_id := md.Query("field1")
+	arguments := md.Ctx.PostArgs()
+	amount := string(arguments.Peek("credited"))
+	pay_id := string(arguments.Peek("merchant_id"))
+	user_id := string(arguments.Peek("custom_field[user_id]"))
+
+	floatAmount, err := strconv.ParseFloat(amount, 2)
+	if err != nil {
+		md.Err(err)
+		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")
+	}
+
+	intID, err := strconv.Atoi(pay_id)
+	userIntID, err2 := strconv.Atoi(user_id)
+	if err != nil || err2 != nil {
+		md.Err(err)
+		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")
+	}
 
 	if len(amount) < 1 || len(pay_id) < 1 || len(user_id) < 1 {
 		return common.SimpleResponse(500, "Some is strange wwww~~~")
 	}
 
-	signToCheck := GetMD5Hash(PAYMENT_SHOP_ID+":"+amount+":"+pay_id+":"+PAYMENT_PRIVATEKEY)
-
-	if signToCheck != md.Query("sign") {
-		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")
-	}
-
-	amountFloat, err := strconv.ParseFloat(amount, 2)
-	if err != nil {
+	signToCheck := getMD5Hash(fmt.Sprintf("%s:%s:%s:%d", PAYMENT_SHOP_ID, string(arguments.Peek("amount")), PAYMENT_PRIVATEKEY_ADDITIONAL, intID))
+	if signToCheck != string(arguments.Peek("sign_2")) {
 		md.Err(err)
 		return common.SimpleResponse(500, "An error occurred. Trying again may work. If it doesn't, yell at this Kurikku instance admin and tell them to fix the API.")
 	}
-	amountInt := int(amountFloat)
 
-
-	_ = md.DB.QueryRow("UPDATE users SET balance = balance+"+ strconv.Itoa(amountInt) + " WHERE id = " + user_id)
-	return common.SimpleResponse(200, "OK")
+	md.DB.Exec(
+		`update users set balance = balance + ? where id = ?`,
+		int(floatAmount), userIntID,
+	)
+	md.DB.Exec(`update users_payment set completed = 1 where id = ?`,
+		intID,
+	)
+	return common.SimpleResponse(200, "Good")
 }

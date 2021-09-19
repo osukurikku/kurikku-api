@@ -47,6 +47,7 @@ func (md MethodData) ClientIP() string {
 // Err logs an error. If RavenClient is set, it will use the client to report
 // the error to sentry, otherwise it will just write the error to stdout.
 func (md MethodData) Err(err error) {
+	fmt.Println(err)
 	user := &raven.User{
 		ID:       strconv.Itoa(md.User.UserID),
 		Username: md.User.Value,

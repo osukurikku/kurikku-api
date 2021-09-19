@@ -175,14 +175,18 @@ func Start(conf common.Conf, dbO *sqlx.DB) *fhr.Router {
 		r.Method("/api/v1/users/first_scores", krv1pr.FirstScoresBestGET)
 		r.Method("/api/v1/users/get_activity", krapi.LogsGET)
 		r.Method("/api/v1/users/mostplayedbm", krapi.UsersMostPlayedBM)
+		r.Method("/api/v1/users/get_highchart", v2.AmoebaScoresChart)
 
 		// V2, new kotrik api
 		r.Method("/api/v2/settings/get_bgs", krv1pr.GetBGs, common.PrivilegeReadConfidential)
-		r.POSTMethod("/api/v2/settings/update_bgs", krv1pr.UpdateBGs, common.PrivilegeReadConfidential)
 		r.Method("/api/v2/leaderboardCountries", v2.GetLeaderBoardCountries)
 		r.Method("/api/v2/streamers.get", krv1pr.AllStreamersGet)
 		r.Method("/api/v2/nickname.available", v2.GetAvailableUsername)
 		r.Method("/api/v2/leaderboard.skills", v1.SkillsLeaderboardGET)
+		// r.Method("/api/v2/payments.getSign", krv1pr.GenerateSignature)
+
+		// r.POSTMethod("/api/v2/payments.validatePayment", krv1pr.CheckPayment)
+		r.POSTMethod("/api/v2/settings/update_bgs", krv1pr.UpdateBGs, common.PrivilegeReadConfidential)
 	}
 
 	// Websocket API
