@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	PAYMENT_PRIVATEKEY            = "qHOX9T-yjgszcRtqa9f6JSourkltNT53"
-	PAYMENT_PRIVATEKEY_ADDITIONAL = "r4U7Q3XYEWc2fC7Qj-UhLvRPTp1TYQB-"
-	PAYMENT_SHOP_ID               = "15356"
+	// keys are revoked, so don't try to search them from history :)
+	PAYMENT_PRIVATEKEY            = ""
+	PAYMENT_PRIVATEKEY_ADDITIONAL = ""
+	PAYMENT_SHOP_ID               = ""
 )
 
 var (
